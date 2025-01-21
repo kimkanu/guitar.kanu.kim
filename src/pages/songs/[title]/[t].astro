@@ -1,0 +1,44 @@
+---
+import Song from "~/components/Song.astro";
+import Layout from "~/layouts/Layout.astro";
+import type { SongType } from "~/songs/types";
+
+export async function getStaticPaths() {
+  const allSongs = Object.values(
+    import.meta.glob("~/songs/*.json", { eager: true }),
+  ) as SongType[];
+
+  const transposes = Array.from({ length: 12 }, (_, i) => i);
+  return allSongs.flatMap(({ title }) =>
+    transposes.map((t) => ({
+      params: { title, t: t.toString() },
+    })),
+  );
+}
+
+const allSongs = Object.values(
+  import.meta.glob("~/songs/*.json", { eager: true }),
+) as SongType[];
+
+const { title, t } = Astro.params;
+const song = allSongs.find((song) => song.title === title);
+
+const url = Astro.url.toString();
+const transpose = Number.parseInt(t, 10);
+---
+
+<Layout>
+  {
+    song && (
+      <Song
+        url={url}
+        youtubeId={song.youtubeId}
+        duration={song.duration}
+        title={title}
+        transpose={transpose}
+        sections={song.sections}
+        defaultTranspose={song.defaultTranspose}
+      />
+    )
+  }
+</Layout>

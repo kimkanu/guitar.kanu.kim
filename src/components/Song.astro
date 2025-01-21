@@ -5,7 +5,7 @@ import Strokes from "./Strokes.astro";
 
 type Props = {
   url: string;
-  defaultTranspose?: number;
+  defaultTranspose: number;
   duration: number;
   title: string;
   youtubeId?: string;
@@ -24,12 +24,12 @@ const {
   sections,
   transpose,
   speed = 1,
+  defaultTranspose,
 } = Astro.props;
 
-const decrementUrl = new URL(url);
-decrementUrl.searchParams.set("t", (transpose - 1).toString());
-const incrementUrl = new URL(url);
-incrementUrl.searchParams.set("t", (transpose + 1).toString());
+const decrementUrl = url.replace(/\/\d+$/, `/${(transpose + 11) % 12}`);
+const incrementUrl = url.replace(/\/\d+$/, `/${(transpose + 1) % 12}`);
+const defaultUrl = url.replace(/\/\d+$/, `/${defaultTranspose}`);
 ---
 
 <header class="flex gap-x-4 items-end">
@@ -43,7 +43,7 @@ incrementUrl.searchParams.set("t", (transpose + 1).toString());
   </h1><section class="space-x-2">
     <a href={decrementUrl}
       ><button
-        class="w-10 h-8 font-mono bg-sky-200 hover:bg-sky-300 active:bg-sky-400 rounded-md"
+        class="w-fit px-4 h-8 font-mono bg-sky-200 hover:bg-sky-300 active:bg-sky-400 rounded-md"
         >-</button
       ></a
     ><span
@@ -53,8 +53,13 @@ incrementUrl.searchParams.set("t", (transpose + 1).toString());
       } (Capo {(12 - (transpose % 12)) % 12})</span
     ><a href={incrementUrl}
       ><button
-        class="w-10 h-8 font-mono bg-sky-200 hover:bg-sky-300 active:bg-sky-400 rounded-md"
+        class="w-fit px-4 h-8 font-mono bg-sky-200 hover:bg-sky-300 active:bg-sky-400 rounded-md"
         >+</button
+      ></a
+    ><a href={defaultUrl}
+      ><button
+        class="w-fit px-4 h-8 font-mono bg-sky-200 hover:bg-sky-300 active:bg-sky-400 rounded-md"
+        >Default</button
       ></a
     >
   </section>
@@ -104,7 +109,7 @@ incrementUrl.searchParams.set("t", (transpose + 1).toString());
   ))
 }
 
-<script define:vars={{ DURATION: duration / speed }}>
+<script is:inline define:vars={{ DURATION: duration / speed }}>
   let isPaused = true;
   const interval = 50;
 
@@ -125,4 +130,4 @@ incrementUrl.searchParams.set("t", (transpose + 1).toString());
       window.scrollBy(0, amount);
     }
   }, interval);
-</script>
+</script>i

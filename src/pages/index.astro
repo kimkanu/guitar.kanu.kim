@@ -1,8 +1,8 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import type { SongType } from "../songs/types";
+import Layout from "~/layouts/Layout.astro";
+import type { SongType } from "~/songs/types";
 const allSongs = Object.values(
-  import.meta.glob("../songs/*.json", { eager: true }),
+  import.meta.glob("~/songs/*.json", { eager: true }),
 ) as SongType[];
 ---
 
@@ -11,7 +11,7 @@ const allSongs = Object.values(
     {
       allSongs.map((song) => (
         <li>
-          <a href={`/songs/${song.title}`}>
+          <a href={`/songs/${song.title}/${song.defaultTranspose}`}>
             <button class="w-min p-4 hover:bg-slate-100 active:bg-slate-200 rounded-3xl">
               {song.youtubeId && (
                 <img
