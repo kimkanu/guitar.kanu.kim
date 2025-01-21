@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import Layout from "~/layouts/Layout.astro";
 import type { SongType } from "~/songs/types";
 
@@ -15,11 +16,17 @@ const allSongs = Object.values(
           <a href={`/songs/${song.title}/${song.defaultTranspose}`}>
             <button class="w-min p-4 hover:bg-slate-100 active:bg-slate-200 rounded-3xl">
               {song.youtubeId && (
-                <img
-                  transition:name="youtube"
-                  class="aspect-video w-80 min-w-80 rounded-2xl object-cover object-center"
-                  src={`https://img.youtube.com/vi/${song.youtubeId}/sddefault.jpg`}
-                />
+                <div transition:name="youtube">
+                  <Image
+                    class="aspect-video w-80 min-w-80 rounded-2xl object-cover object-center"
+                    src={`https://img.youtube.com/vi/${song.youtubeId}/sddefault.jpg`}
+                    alt=""
+                    role="presentation"
+                    width={640}
+                    height={360}
+                    loading="eager"
+                  />
+                </div>
               )}
               <p class="w-full text-xl mt-2">{song.title}</p>
             </button>

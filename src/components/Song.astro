@@ -76,47 +76,49 @@ const defaultUrl = url.replace(/\/\d+$/, `/${defaultTranspose}`);
   )
 }
 
-{
-  sections.map((section) => (
-    <section class="grid grid-cols-4 md:grid-cols-8">
-      {section.map((chord) => {
-        const signature = typeof chord === "string" ? chord : chord[1];
-        const key =
-          signature?.[1] === "#" || signature?.[1] === "b"
-            ? signature?.slice(0, 2)
-            : signature?.[0];
-        const suffix = signature?.slice(key.length).split("_")[0] || "major";
-        const index = Number.parseInt(signature?.split("_")[1], 10) || 0;
+<section class="motion-preset-fade motion-duration-300 motion-delay-[400ms]">
+  {
+    sections.map((section) => (
+      <section class="grid grid-cols-4 md:grid-cols-8">
+        {section.map((chord) => {
+          const signature = typeof chord === "string" ? chord : chord[1];
+          const key =
+            signature?.[1] === "#" || signature?.[1] === "b"
+              ? signature?.slice(0, 2)
+              : signature?.[0];
+          const suffix = signature?.slice(key.length).split("_")[0] || "major";
+          const index = Number.parseInt(signature?.split("_")[1], 10) || 0;
 
-        const span = typeof chord === "string" ? 1 : chord[0];
-        const lyrics = typeof chord === "string" ? undefined : chord[2];
-        const strokes = typeof chord === "string" ? undefined : chord[3];
+          const span = typeof chord === "string" ? 1 : chord[0];
+          const lyrics = typeof chord === "string" ? undefined : chord[2];
+          const strokes = typeof chord === "string" ? undefined : chord[3];
 
-        return (
-          <section
-            class="py-4 border-b border-b-slate-200"
-            style={{
-              gridColumn: `span ${span} / span ${span}`,
-            }}
-          >
-            {signature ? (
-              <Chord
-                transpose={transpose}
-                key={key as any}
-                suffix={suffix as any}
-                index={index}
-              />
-            ) : (
-              <Chord />
-            )}
-            {lyrics && <section class="text-xl">{lyrics}</section>}
-            {strokes && <Strokes strokes={strokes} />}
-          </section>
-        );
-      })}
-    </section>
-  ))
-}
+          return (
+            <section
+              class="py-4 border-b border-b-slate-200"
+              style={{
+                gridColumn: `span ${span} / span ${span}`,
+              }}
+            >
+              {signature ? (
+                <Chord
+                  transpose={transpose}
+                  key={key as any}
+                  suffix={suffix as any}
+                  index={index}
+                />
+              ) : (
+                <Chord />
+              )}
+              {lyrics && <section class="text-xl">{lyrics}</section>}
+              {strokes && <Strokes strokes={strokes} />}
+            </section>
+          );
+        })}
+      </section>
+    ))
+  }
+</section>c
 
 <script is:inline define:vars={{ DURATION: duration / speed }}>
   let isPaused = true;
