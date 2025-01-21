@@ -1,11 +1,29 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import type { SongType } from "../songs/types";
+const allSongs = Object.values(
+  import.meta.glob("../songs/*.json", { eager: true }),
+) as SongType[];
 ---
 
 <Layout>
-	<Welcome />
+  <ul class="flex flex-wrap">
+    {
+      allSongs.map((song) => (
+        <li>
+          <a href={`/songs/${song.title}`}>
+            <button class="w-min p-4 hover:bg-slate-100 active:bg-slate-200 rounded-3xl">
+              {song.youtubeId && (
+                <img
+                  class="aspect-video w-80 min-w-80 rounded-2xl object-cover object-center"
+                  src={`https://img.youtube.com/vi/${song.youtubeId}/sddefault.jpg`}
+                />
+              )}
+              <p class="w-full text-xl mt-2">{song.title}</p>
+            </button>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
 </Layout>

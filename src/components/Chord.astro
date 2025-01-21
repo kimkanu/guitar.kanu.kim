@@ -1,0 +1,241 @@
+---
+import { nanoid } from "nanoid";
+import guitar from "./guitar.json";
+
+const keys = [
+  "C",
+  "C#",
+  "D",
+  "Eb",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "Ab",
+  "A",
+  "Bb",
+  "B",
+] as const;
+const suffixes = [
+  "major",
+  "minor",
+  "dim",
+  "dim7",
+  "sus2",
+  "sus4",
+  "sus2sus4",
+  "7sus4",
+  "7/G",
+  "alt",
+  "aug",
+  "5",
+  "6",
+  "69",
+  "7",
+  "7b5",
+  "aug7",
+  "9",
+  "9b5",
+  "aug9",
+  "7b9",
+  "7#9",
+  "11",
+  "9#11",
+  "13",
+  "maj7",
+  "maj7b5",
+  "maj7#5",
+  "maj9",
+  "maj11",
+  "maj13",
+  "m6",
+  "m69",
+  "m7",
+  "m7b5",
+  "m9",
+  "m11",
+  "mmaj7",
+  "mmaj7b5",
+  "mmaj9",
+  "mmaj11",
+  "add9",
+  "madd9",
+  "/E",
+  "/F",
+  "/F#",
+  "/G",
+  "/G#",
+  "/A",
+  "/Bb",
+  "/B",
+  "/C",
+  "/C#",
+  "m/B",
+  "m/C",
+  "m/C#",
+  "/D",
+  "m/D",
+  "/D#",
+  "m/D#",
+  "m/E",
+  "m/F",
+  "m/F#",
+  "m/G",
+  "m/G#",
+] as const;
+
+type Props = {
+  key?: (typeof keys)[number] | "Db" | "D#" | "Gb" | "G#" | "A#" | "";
+  suffix?: "m" | (typeof suffixes)[number];
+  index?: number;
+  transpose?: number;
+};
+
+let { key = "", suffix = "major", index = 0, transpose = 0 } = Astro.props;
+if (suffix === "m") suffix = "minor";
+if (key === "Db") key = "C#";
+if (key === "D#") key = "Eb";
+if (key === "Gb") key = "F#";
+if (key === "G#") key = "Ab";
+if (key === "A#") key = "Bb";
+
+const transposedKey = !key
+  ? ""
+  : keys[(keys.indexOf(key) + transpose + keys.length) % keys.length];
+
+const chordSet = !transposedKey
+  ? null
+  : guitar.chords[transposedKey].find((chord) => chord.suffix === suffix);
+const chord = !key
+  ? null
+  : (chordSet?.positions?.[index] ?? chordSet?.positions?.[0]);
+const id = nanoid();
+---
+
+<div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: "fit-content",
+    minHeight: "91px",
+  }}
+>
+  {
+    chord && (
+      <>
+        <span class="text-xl" style={{ fontWeight: 500, paddingLeft: "9px" }}>
+          {transposedKey +
+            (suffix === "major" ? "" : suffix === "minor" ? "m" : suffix)}
+        </span>
+        <div
+          id={`chord-${id}`}
+          style={{ width: "92px", marginTop: "-12px" }}
+          class="[&>svg]:transition-all [&>svg]:hover:scale-[3] [&>svg]:hover:bg-white"
+        />
+      </>
+    )
+  }
+</div>
+
+<style is:global>
+  div[id^="chord-"] > svg > *:not(.tuning) {
+    transform: translateX(-12px);
+  }
+  div[id^="chord-"] > svg > .tuning {
+    transform: translateX(3px);
+  }
+</style>
+
+<script type="module" is:inline define:vars={{ chord, id }}>
+  import { SVGuitarChord } from "https://cdn.jsdelivr.net/npm/svguitar@2.4.1/+esm";
+
+  if (chord) {
+    let frets = chord.frets.map((fret) => {
+      if (fret === -1) {
+        return "x";
+      }
+      if (fret === "0") {
+        return 0;
+      } else {
+        return +fret;
+      }
+    });
+
+    let fingers = chord.fingers.map((finger) =>
+      finger === 0 ? "" : finger.toString(),
+    );
+
+    let nutSize = 1;
+
+    let orientation = "horizontal";
+
+    let barres = [];
+    if (chord.barres.length) {
+      chord.barres.forEach((barre) => {
+        const barreObj = {};
+        const barresFrom = 6 - chord.frets.indexOf(barre);
+        const barresTo = 6 - chord.frets.lastIndexOf(barre);
+        barreObj.fret = barre;
+        barreObj.fromString = barresFrom;
+        barreObj.toString = barresTo;
+        barreObj.className = `finger-${
+          chord.fingers[chord.frets.indexOf(barre)]
+        }`;
+        barres.push(barreObj);
+      });
+    }
+
+    new SVGuitarChord(`#chord-${id}`)
+      .chord({
+        fingers: [
+          [
+            6,
+            frets[0],
+            { text: fingers[0], className: `finger-${chord.fingers[0]}` },
+          ],
+          [
+            5,
+            frets[1],
+            { text: fingers[1], className: `finger-${chord.fingers[1]}` },
+          ],
+          [
+            4,
+            frets[2],
+            { text: fingers[2], className: `finger-${chord.fingers[2]}` },
+          ],
+          [
+            3,
+            frets[3],
+            { text: fingers[3], className: `finger-${chord.fingers[3]}` },
+          ],
+          [
+            2,
+            frets[4],
+            { text: fingers[4], className: `finger-${chord.fingers[4]}` },
+          ],
+          [
+            1,
+            frets[5],
+            { text: fingers[5], className: `finger-${chord.fingers[5]}` },
+          ],
+        ],
+        barres,
+        position: chord.baseFret,
+      })
+      .configure({
+        tuning: ["E", "A", "D", "G", "B", "E"],
+        barreChordRadius: 0.5,
+        fingerSize: 0.9,
+        tuningsFontSize: 45,
+        fingerTextSize: 42,
+        nutSize,
+        fixedDiagramPosition: true,
+        orientation,
+        fretLabelPosition: "left",
+        fontFamily: "sans-serif",
+        sidePadding: 0.2,
+      })
+      .draw();
+  }
+</script>

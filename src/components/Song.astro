@@ -1,0 +1,128 @@
+---
+import { YouTube } from "@astro-community/astro-embed-youtube";
+import Chord from "./Chord.astro";
+import Strokes from "./Strokes.astro";
+
+type Props = {
+  url: string;
+  defaultTranspose?: number;
+  duration: number;
+  title: string;
+  youtubeId?: string;
+  transpose: number;
+  sections: SongSection[];
+  speed?: number;
+};
+type SongSection = SongChord[];
+type SongChord = string | [number, string, lyrics?: string, strokes?: string];
+
+const {
+  url,
+  duration,
+  title,
+  youtubeId,
+  sections,
+  transpose,
+  speed = 1,
+} = Astro.props;
+
+const decrementUrl = new URL(url);
+decrementUrl.searchParams.set("t", (transpose - 1).toString());
+const incrementUrl = new URL(url);
+incrementUrl.searchParams.set("t", (transpose + 1).toString());
+---
+
+<header class="flex gap-x-4 items-end">
+  <a href="/"
+    ><button
+      class="h-8 font-mono bg-sky-200 hover:bg-sky-300 active:bg-sky-400 rounded-md px-2"
+      >{"< Back"}</button
+    ></a
+  ><h1 class="text-2xl font-semibold">
+    {title}
+  </h1><section class="space-x-2">
+    <a href={decrementUrl}
+      ><button
+        class="w-10 h-8 font-mono bg-sky-200 hover:bg-sky-300 active:bg-sky-400 rounded-md"
+        >-</button
+      ></a
+    ><span
+      >Key {
+        ((12 + (transpose % 12)) % 12 > 0 ? "+" : "") +
+          ((12 + (transpose % 12)) % 12)
+      } (Capo {(12 - (transpose % 12)) % 12})</span
+    ><a href={incrementUrl}
+      ><button
+        class="w-10 h-8 font-mono bg-sky-200 hover:bg-sky-300 active:bg-sky-400 rounded-md"
+        >+</button
+      ></a
+    >
+  </section>
+</header>
+
+{youtubeId && <YouTube id={youtubeId} class="my-8 rounded-xl mx-auto" />}
+
+{
+  sections.map((section) => (
+    <section class="grid grid-cols-4 md:grid-cols-8">
+      {section.map((chord) => {
+        const signature = typeof chord === "string" ? chord : chord[1];
+        const key =
+          signature?.[1] === "#" || signature?.[1] === "b"
+            ? signature?.slice(0, 2)
+            : signature?.[0];
+        const suffix = signature?.slice(key.length).split("_")[0] || "major";
+        const index = Number.parseInt(signature?.split("_")[1], 10) || 0;
+
+        const span = typeof chord === "string" ? 1 : chord[0];
+        const lyrics = typeof chord === "string" ? undefined : chord[2];
+        const strokes = typeof chord === "string" ? undefined : chord[3];
+
+        return (
+          <section
+            class="py-4 border-b border-b-slate-200"
+            style={{
+              gridColumn: `span ${span} / span ${span}`,
+            }}
+          >
+            {signature ? (
+              <Chord
+                transpose={transpose}
+                key={key as any}
+                suffix={suffix as any}
+                index={index}
+              />
+            ) : (
+              <Chord />
+            )}
+            {lyrics && <section class="text-xl">{lyrics}</section>}
+            {strokes && <Strokes strokes={strokes} />}
+          </section>
+        );
+      })}
+    </section>
+  ))
+}
+
+<script define:vars={{ DURATION: duration / speed }}>
+  let isPaused = true;
+  const interval = 50;
+
+  // on space, toggle isPaused
+  window.addEventListener("keydown", (event) => {
+    if (event.code === "Space") {
+      event.preventDefault();
+      event.stopPropagation();
+      isPaused = !isPaused;
+    }
+  });
+
+  setInterval(() => {
+    if (!isPaused) {
+      const amount =
+        ((document.body.scrollHeight - window.innerHeight) / DURATION) *
+        (interval / 1000);
+      window.scrollBy(0, amount);
+    }
+  }, interval);
+</script>
