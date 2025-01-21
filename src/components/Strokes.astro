@@ -7,12 +7,12 @@ const { strokes } = Astro.props;
 
 <p class="bg-slate-200 rounded-md px-2 w-fit my-2 whitespace-pre">
   <span class="text-lg font-sans">Strokes:</span>
-  <code class="text-xl font-mono font-semibold">
-    {
+  <code class="text-xl font-mono font-semibold"
+    >{
       strokes
         .replaceAll(/D/gi, "⊓")
         .replaceAll(/U/gi, "∨")
         .replaceAll(/X/gi, "×")
-    }
-  </code>
+    }</code
+  >
 </p>
