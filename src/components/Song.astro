@@ -65,7 +65,16 @@ const defaultUrl = url.replace(/\/\d+$/, `/${defaultTranspose}`);
   </section>
 </header>
 
-{youtubeId && <YouTube id={youtubeId} class="my-8 rounded-xl mx-auto" />}
+{
+  youtubeId && (
+    <div
+      class="w-[min(50vw,512px)] mx-auto rounded-3xl my-8"
+      transition:name="youtube"
+    >
+      <YouTube id={youtubeId} class="w-full rounded-3xl" />
+    </div>
+  )
+}
 
 {
   sections.map((section) => (

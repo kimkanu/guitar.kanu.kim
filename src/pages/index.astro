@@ -1,6 +1,7 @@
 ---
 import Layout from "~/layouts/Layout.astro";
 import type { SongType } from "~/songs/types";
+
 const allSongs = Object.values(
   import.meta.glob("~/songs/*.json", { eager: true }),
 ) as SongType[];
@@ -15,6 +16,7 @@ const allSongs = Object.values(
             <button class="w-min p-4 hover:bg-slate-100 active:bg-slate-200 rounded-3xl">
               {song.youtubeId && (
                 <img
+                  transition:name="youtube"
                   class="aspect-video w-80 min-w-80 rounded-2xl object-cover object-center"
                   src={`https://img.youtube.com/vi/${song.youtubeId}/sddefault.jpg`}
                 />
